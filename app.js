@@ -1,47 +1,86 @@
-var express = require("express");
-var app = express();
-var bodyParser = require("body-parser");
+var express    = require("express"),
+    app        = express(),
+    bodyParser = require("body-parser"),
+    mongoose   = require('mongoose')
 
+mongoose.connect('mongodb://localhost/yelp_camp')
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
-var campgrounds = [
-  {name: "Miracle Beach", image: "https://farm4.staticflickr.com/3696/12370929373_a5e472d812_c.jpg"},
-  {name: "Comox Lake", image: "http://evanseguin.com/blog/wp-content/gallery/comox-valley/comox-lake.jpg"},
-  {name: "Kye Bay", image: "http://www.comoxvalleyguide.com/wp-content/uploads/2011/11/kye-bay-header.jpg"},
-  {name: "Kin Beach", image: "https://media-cdn.tripadvisor.com/media/photo-s/08/b2/f0/c9/kin-beach-provincial.jpg"},
-  {name: "Cape Lazo", image: "http://capelazo.com/files/images/1625494_233548943503251_1316333643_n.jpg"},
-  {name: "Miracle Beach", image: "https://farm4.staticflickr.com/3696/12370929373_a5e472d812_c.jpg"},
-  {name: "Comox Lake", image: "http://evanseguin.com/blog/wp-content/gallery/comox-valley/comox-lake.jpg"},
-  {name: "Kye Bay", image: "http://www.comoxvalleyguide.com/wp-content/uploads/2011/11/kye-bay-header.jpg"},
-  {name: "Kin Beach", image: "https://media-cdn.tripadvisor.com/media/photo-s/08/b2/f0/c9/kin-beach-provincial.jpg"},
-  {name: "Cape Lazo", image: "http://capelazo.com/files/images/1625494_233548943503251_1316333643_n.jpg"},
-  {name: "Miracle Beach", image: "https://farm4.staticflickr.com/3696/12370929373_a5e472d812_c.jpg"},
-  {name: "Comox Lake", image: "http://evanseguin.com/blog/wp-content/gallery/comox-valley/comox-lake.jpg"},
-  {name: "Kye Bay", image: "http://www.comoxvalleyguide.com/wp-content/uploads/2011/11/kye-bay-header.jpg"},
-  {name: "Kin Beach", image: "https://media-cdn.tripadvisor.com/media/photo-s/08/b2/f0/c9/kin-beach-provincial.jpg"},
-  {name: "Cape Lazo", image: "http://capelazo.com/files/images/1625494_233548943503251_1316333643_n.jpg"},
-];
+//Schema setup
+var campgroundSchema = new mongoose.Schema({
+  name: String,
+  image: String,
+  description: String
+});
+
+//compiling the schema into a model assigned to a variable
+var Campground = mongoose.model('Campground', campgroundSchema);
+
+// Campground.create (
+//     {
+//       name: 'Sprout Lake',
+//       image: '//static1.squarespace.com/static/577453a2b3db2b317b67f010/t/58ac70908419c25e73c992b7/1487696026271/?format=750w',
+//       description: 'Warm swimming lake near Nanaimo and Port Alberni'
+//     },
+//     function(err,campground){
+//       if (err) {
+//         console.log(err);
+//       } else {
+//         console.log('Newly created campground:');
+//         console.log(campground.name);
+//       }
+//     });
+
 
 app.get("/", function(req,res){
   res.render("landing");
 });
 
+
+//INDEX - show all campgrounds - RESTFUL
 app.get("/campgrounds", function(req, res){
-  res.render("campgrounds", {campgrounds: campgrounds});
+  //Get all campgrounds from db
+  Campground.find({}, function(err, allCampgrounds){
+    if (err) {
+      console.log('error');
+    } else {
+        res.render("index", {campgrounds: allCampgrounds});    }
+  });
 });
 
+////CREATE - add new campground to db - RESTFUL
 app.post("/campgrounds", function(req, res){
     var name = req.body.name;
     var image = req.body.image;
-    var newCampground = {name: name, image: image}
-    campgrounds.push(newCampground);
-    res.redirect("/campgrounds");
-})
+    var desc = req.body.description;
+    var newCampground = {name: name, image: image, description: desc}
+    //create a new campground and save to database
+    Campground.create(newCampground, function(err, newlyCreated) {
+      if (err) {
+        console.log(err);
+      } else {
+        res.redirect("/campgrounds");
+      };
+    });
+});
 
+//NEW - display form to make a new campground - RESTFUL
 app.get("/campgrounds/new", function(req,res){
   res.render("new.ejs");
 });
+
+//SHOW - display a specific campground - RESTFUL
+app.get('/campgrounds/:id', function(req,res){
+  Campground.findById(req.params.id, function(err, foundCampground){
+    if(err) {
+      console.log(err);
+    } else {
+      res.render('show', {campground: foundCampground});
+    }
+  });
+});
+
 
 app.get("*", function(req,res) {
 	res.send("Sorry, page not found.");
