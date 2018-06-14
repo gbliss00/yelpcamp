@@ -5,20 +5,23 @@ var passport = require("passport");
 var User = require("../models/user");
 
 
-
+//LANDING PAGE ROUTE
 router.get("/", function(req,res){
   res.render("landing");
 });
 
 
 //==============================================================================
-//AUTH ROUTES
+//AUTH routes
 //==============================================================================
 
+//NEW
 router.get("/register", function(req, res){
   res.render("register");
 });
 
+
+//CREATE
 router.post("/register", function(req, res){
   var newUser = new User({username: req.body.username});
   User.register(newUser, req.body.password, function(err, user){
@@ -32,10 +35,12 @@ router.post("/register", function(req, res){
   });
 });
 
+//LOGIN
 router.get("/login", function(req,res){
   res.render("login");
 });
 
+//AUTHENTICATE LOGIN
 router.post("/login", passport.authenticate("local",
   {
     successRedirect: "/campgrounds",
@@ -44,11 +49,16 @@ router.post("/login", passport.authenticate("local",
   res.send("login logic on the go")
 });
 
+
+//LOGOUT
 router.get("/logout", function(req, res){
   req.logout();
   res.redirect("/campgrounds");
 });
 
+//==============================================================================
+
+//MIDDLEWARE - WILL BE MOVED
 function isLoggedIn(req, res, next) {
   if(req.isAuthenticated()){
     return next();
