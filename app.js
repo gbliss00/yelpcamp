@@ -16,7 +16,10 @@ var commentRoutes    = require("./routes/comments"),
     indexRoutes      = require("./routes/index")
 
 //STANDARD LIBRARY SETUP
-mongoose.connect('mongodb://localhost/yelp_camp')
+//local db connection
+//mongoose.connect('mongodb://localhost/yelp_camp');
+//mlab remote database connection
+mongoose.connect('mongodb://yelpcamper:Grassyarn1@ds217671.mlab.com:17671/yelp_campdb');
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
