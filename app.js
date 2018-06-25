@@ -15,11 +15,17 @@ var commentRoutes    = require("./routes/comments"),
     campgroundRoutes = require("./routes/campgrounds"),
     indexRoutes      = require("./routes/index")
 
-//STANDARD LIBRARY SETUP
+
+
+mongoose.connect(process.env.DATABASEURL);
+//MONGODB CONNECTION OPTIONS
 //local db connection
 //mongoose.connect('mongodb://localhost/yelp_camp');
 //mlab remote database connection
-mongoose.connect('mongodb://yelpcamper:Grassyarn1@ds217671.mlab.com:17671/yelp_campdb');
+//mongoose.connect('mongodb://yelpcamper:Grassyarn1@ds217671.mlab.com:17671/yelp_campdb');
+
+
+//STANDARD LIBRARY SETUP
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
@@ -57,12 +63,15 @@ app.use(indexRoutes);
 app.use("/campgrounds", campgroundRoutes);
 app.use("/campgrounds/:id/comments", commentRoutes);
 
-//Heroku port setup
+//LISTENING PORT SETUP
 var port = process.env.PORT || 8080;
 app.listen(port, function() {
     console.log('Our app is running on http://localhost:' + port);
 });
 
+
+
+//BASIC LISTENING ROUTE FOR B00KR.CA
 // app.listen(3000, function(){
 //         console.log("YelpCamp is up!");
 // });
