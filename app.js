@@ -57,8 +57,12 @@ app.use(indexRoutes);
 app.use("/campgrounds", campgroundRoutes);
 app.use("/campgrounds/:id/comments", commentRoutes);
 
+//Heroku port setup
+var port = process.env.PORT || 8080;
+app.listen(port, function() {
+    console.log('Our app is running on http://localhost:' + port);
+});
 
-
-app.listen(3000, function(){
-        console.log("YelpCamp is up!");
+// app.listen(3000, function(){
+//         console.log("YelpCamp is up!");
 });
